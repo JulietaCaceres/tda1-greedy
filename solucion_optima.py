@@ -1,5 +1,6 @@
 from operator import le
 import re
+from exceptions import *
 
 
 ERROR_MESSAGE = "No se puede cubrir la ruta"
@@ -25,27 +26,30 @@ def route_is_covered(start, k):
     return start >= k
 
 def there_are_antennas(available_antennas):
-    return not len(available_antennas) == 0
+    if len(available_antennas) == 0:
+        raise NoAntennaException(ERROR_MESSAGE)
 
 def can_cover_road_length(available_antennas, k):
-    return not max(available_antennas, key=lambda x: x[2])[2] < k
+    if max(available_antennas, key=lambda x: x[2])[2] < k:
+        raise LongRoadException(ERROR_MESSAGE)
 
 
 def start_can_be_covered(available_antennas):
-    return not available_antennas[0][1] > 0
+    if available_antennas[0][1] > 0:
+        raise StartIsNotCovered(ERROR_MESSAGE)
 
 
 def check_border_cases(available_antennas, k):
-    return there_are_antennas(available_antennas) and can_cover_road_length(available_antennas, k) and start_can_be_covered(available_antennas)
+    there_are_antennas(available_antennas) 
+    can_cover_road_length(available_antennas, k) 
+    start_can_be_covered(available_antennas)
 
 
 
 def best_contracts(k, file_name):
     available_antennas = process_antennas(file_name)
 
-    valid = check_border_cases(available_antennas, k)
-    if not valid:
-        return ERROR_MESSAGE
+    check_border_cases(available_antennas, k)
 
     contracts = []
     end_optimal_antenna = available_antennas[0][2]
@@ -69,12 +73,12 @@ def best_contracts(k, file_name):
                 end_optimal_antenna = end_antenna
                 optimal_antenna = antenna
             else:
-                return ERROR_MESSAGE
+                raise Exception(ERROR_MESSAGE)
     
     last_antennna = available_antennas[-1]
     if last_antennna[1] <= start:
         contracts.append(last_antennna)
     else:
-        return ERROR_MESSAGE
+        return Exception(ERROR_MESSAGE)
 
     return  [contract[0] for contract in contracts]
